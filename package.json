@@ -1,0 +1,13 @@
+{
+  "name": "outagedeck-status-check-action",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GitHub Action for checking cloud and SaaS vendor status with OutageDeck.",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

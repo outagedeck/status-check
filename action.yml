@@ -1,0 +1,31 @@
+name: OutageDeck vendor status check
+description: Check whether the cloud and SaaS vendors your workflow depends on are having an outage.
+author: OutageDeck
+branding:
+  icon: activity
+  color: blue
+inputs:
+  providers:
+    description: Comma-separated OutageDeck provider slugs, such as aws,cloudflare,github,openai.
+    required: true
+  fail-on:
+    description: "Lowest status that fails the step: degraded, outage, major_outage, or never."
+    required: false
+    default: degraded
+  fail-on-error:
+    description: Fail when OutageDeck cannot be reached or a provider slug is invalid.
+    required: false
+    default: "true"
+  api-key:
+    description: Optional OutageDeck API key for a higher request quota.
+    required: false
+outputs:
+  operational:
+    description: "true when no provider meets the configured failure threshold."
+  summary:
+    description: Human-readable provider status summary.
+  results:
+    description: JSON array containing the checked providers and their current statuses.
+runs:
+  using: node20
+  main: index.js
