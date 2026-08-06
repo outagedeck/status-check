@@ -75,7 +75,7 @@ API or configuration errors are controlled separately with `fail-on-error`.
 
 - [Install the cross-platform CLI](https://github.com/outagedeck/cli) with `brew install outagedeck/tap/outagedeck`
 - [Install the cloud and SaaS outage-triage agent in VS Code](https://aka.ms/awesome-copilot/install/agent?url=vscode%3Achat-agent%2Finstall%3Furl%3Dhttps%3A%2F%2Fraw.githubusercontent.com%2Foutagedeck%2Fmcp%2Fmain%2F.github%2Fagents%2Fcloud-saas-outage-triage.agent.md)
-- [Set up free email alerts](https://outagedeck.com/account?utm_source=github&utm_medium=repository&utm_campaign=status_check)
+- [Set up free email alerts](https://outagedeck.com/alerts?utm_source=github&utm_medium=repository&utm_campaign=status_check_alerts)
 - [Check your whole stack](https://outagedeck.com/stack?utm_source=github&utm_medium=repository&utm_campaign=status_check)
 - [Use the remote MCP server](https://outagedeck.com/developers/mcp?utm_source=github&utm_medium=repository&utm_campaign=status_check)
 - [Build with the JSON API](https://outagedeck.com/developers/api?utm_source=github&utm_medium=repository&utm_campaign=status_check)

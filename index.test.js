@@ -3,12 +3,24 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const {
+  buildStepSummary,
   failureThreshold,
   normalizeProviders,
   parseBoolean,
   shouldFail,
   statusRank,
 } = require("./index");
+
+test("adds an attributable proactive-alert link to workflow summaries", () => {
+  const summary = buildStepSummary([
+    { name: "GitHub", status: "operational", label: "Operational", url: "https://outagedeck.com/providers/github" },
+  ], true);
+
+  assert.match(summary, /Get proactive alerts before the next failed workflow/);
+  assert.match(summary, /utm_source=github_actions/);
+  assert.match(summary, /utm_medium=workflow_summary/);
+  assert.match(summary, /utm_campaign=status_check_alerts/);
+});
 
 test("normalizes and deduplicates provider slugs", () => {
   assert.deepEqual(normalizeProviders(" GitHub,aws,github "), ["github", "aws"]);

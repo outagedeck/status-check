@@ -3,6 +3,7 @@
 const fs = require("node:fs");
 
 const API_BASE = "https://outagedeck.com/api/v1/providers";
+const ALERTS_URL = "https://outagedeck.com/alerts?utm_source=github_actions&utm_medium=workflow_summary&utm_campaign=status_check_alerts";
 const STATUS_RANK = Object.freeze({
   operational: 0,
   maintenance: 1,
@@ -73,9 +74,7 @@ function writeOutput(name, value) {
   fs.appendFileSync(outputFile, `${name}<<${delimiter}\n${value}\n${delimiter}\n`);
 }
 
-function writeStepSummary(results, operational) {
-  const summaryFile = process.env.GITHUB_STEP_SUMMARY;
-  if (!summaryFile) return;
+function buildStepSummary(results, operational) {
   const rows = results.map((result) => {
     const provider = result.url ? `[${result.name}](${result.url})` : result.name;
     const detail = result.error ? result.error.replaceAll("|", "\\|") : result.label;
@@ -90,10 +89,16 @@ function writeStepSummary(results, operational) {
     "| --- | --- | --- |",
     ...rows,
     "",
-    "[Review live status and configure alerts](https://outagedeck.com/stack)",
+    `[Get proactive alerts before the next failed workflow](${ALERTS_URL})`,
     "",
   ].join("\n");
-  fs.appendFileSync(summaryFile, body);
+  return body;
+}
+
+function writeStepSummary(results, operational) {
+  const summaryFile = process.env.GITHUB_STEP_SUMMARY;
+  if (!summaryFile) return;
+  fs.appendFileSync(summaryFile, buildStepSummary(results, operational));
 }
 
 async function fetchProvider(provider, apiKey) {
@@ -181,6 +186,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  buildStepSummary,
   failureThreshold,
   normalizeProviders,
   parseBoolean,
