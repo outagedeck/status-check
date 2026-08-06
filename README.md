@@ -6,6 +6,12 @@ Stop burning CI minutes on an upstream outage. This GitHub Action checks the liv
 
 Public checks are free, keyless, and read-only. Status comes from each vendor's official status feed.
 
+> [!IMPORTANT]
+> This action can gate a workflow only after GitHub Actions starts its job. If
+> the Actions control plane prevents runs from starting, an in-workflow check
+> cannot notify you. Use [independent GitHub alerts](https://outagedeck.com/alerts/github?utm_source=github&utm_medium=repository&utm_campaign=status_check_alerts)
+> for that failure mode.
+
 ## Quick start
 
 ```yaml
