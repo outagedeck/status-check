@@ -57,6 +57,11 @@ test("external health page keeps the availability boundary explicit", async () =
   assert.match(page, /OutageDeck could not be reached/);
   assert.match(page, /GitHub-hosted run history/);
   assert.match(page, /utm_campaign=external_health_page/);
+  assert.match(
+    page,
+    /\/stack\?p=github%2Ccloudflare%2Copenai%2Canthropic%2Creddit/,
+  );
+  assert.match(page, /utm_content=five_provider_stack/);
   assert.doesNotMatch(page, /—/);
 });
 
