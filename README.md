@@ -34,7 +34,7 @@ jobs:
       - run: ./deploy.sh
 ```
 
-The action adds a provider table to the workflow summary and links every result to its live OutageDeck status page.
+The action adds a provider table to the workflow summary, links every result to its live OutageDeck status page, and carries the successful provider stack into alert setup.
 
 ## Inputs
 
@@ -52,6 +52,7 @@ The action adds a provider table to the workflow summary and links every result 
 | `operational` | `true` when no provider met the configured failure threshold. |
 | `summary` | A compact human-readable status summary. |
 | `results` | JSON array with provider status, headline, source timestamp, and link. |
+| `alerts-url` | Prefilled alert setup URL for up to 12 successfully checked providers. |
 
 Use outputs when you want a warning-only preflight gate:
 
@@ -64,6 +65,8 @@ Use outputs when you want a warning-only preflight gate:
 
 - if: steps.vendors.outputs.operational == 'true'
   run: echo "Upstream services look healthy"
+
+- run: echo "Alert setup: ${{ steps.vendors.outputs['alerts-url'] }}"
 ```
 
 ## Status thresholds

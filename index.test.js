@@ -3,6 +3,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const {
+  buildAlertsUrl,
   buildStepSummary,
   failureThreshold,
   normalizeProviders,
@@ -13,13 +14,48 @@ const {
 
 test("adds an attributable proactive-alert link to workflow summaries", () => {
   const summary = buildStepSummary([
-    { name: "GitHub", status: "operational", label: "Operational", url: "https://outagedeck.com/providers/github" },
+    { provider: "github", name: "GitHub", status: "operational", label: "Operational", url: "https://outagedeck.com/providers/github" },
+    { provider: "cloudflare", name: "Cloudflare", status: "operational", label: "Operational", url: "https://outagedeck.com/providers/cloudflare" },
   ], true);
 
-  assert.match(summary, /Get proactive alerts before the next failed workflow/);
+  assert.match(summary, /Get alerts for this checked stack/);
+  assert.match(summary, /stack=github%2Ccloudflare/);
   assert.match(summary, /utm_source=github_actions/);
   assert.match(summary, /utm_medium=workflow_summary/);
   assert.match(summary, /utm_campaign=status_check_alerts/);
+  assert.match(summary, /utm_content=stack_handoff/);
+});
+
+test("builds a deduplicated alert handoff from successful checks", () => {
+  const url = buildAlertsUrl([
+    { provider: "github", status: "operational" },
+    { provider: "cloudflare", status: "degraded" },
+    { provider: "github", status: "operational" },
+    { provider: "unknown-provider", status: "error" },
+  ]);
+
+  assert.equal(
+    url,
+    "https://outagedeck.com/account?stack=github%2Ccloudflare&utm_source=github_actions&utm_medium=workflow_summary&utm_campaign=status_check_alerts&utm_content=stack_handoff",
+  );
+});
+
+test("caps the prefilled alert handoff at twelve successful checks", () => {
+  const results = Array.from({ length: 14 }, (_, index) => ({
+    provider: `provider-${index + 1}`,
+    status: "operational",
+  }));
+  const url = new URL(buildAlertsUrl(results));
+
+  assert.equal(url.searchParams.get("stack").split(",").length, 12);
+  assert.match(buildStepSummary(results, true), /first 12 successful checks/);
+});
+
+test("falls back to the alerts guide when every provider check fails", () => {
+  assert.equal(
+    buildAlertsUrl([{ provider: "github", status: "error" }]),
+    "https://outagedeck.com/alerts?utm_source=github_actions&utm_medium=workflow_summary&utm_campaign=status_check_alerts",
+  );
 });
 
 test("normalizes and deduplicates provider slugs", () => {
