@@ -26,6 +26,8 @@ outputs:
     description: Human-readable provider status summary.
   results:
     description: JSON array containing the checked providers and their current statuses.
+  alerts-url:
+    description: Prefilled OutageDeck alert setup URL for the successfully checked provider stack.
 runs:
   using: node20
   main: index.js

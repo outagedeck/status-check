@@ -4,6 +4,7 @@ const fs = require("node:fs");
 
 const API_BASE = "https://outagedeck.com/api/v1/providers";
 const ALERTS_URL = "https://outagedeck.com/alerts?utm_source=github_actions&utm_medium=workflow_summary&utm_campaign=status_check_alerts";
+const ALERT_STACK_LIMIT = 12;
 const STATUS_RANK = Object.freeze({
   operational: 0,
   maintenance: 1,
@@ -74,7 +75,27 @@ function writeOutput(name, value) {
   fs.appendFileSync(outputFile, `${name}<<${delimiter}\n${value}\n${delimiter}\n`);
 }
 
+function buildAlertsUrl(results) {
+  const providers = [...new Set(results
+    .filter((result) => result.status !== "error")
+    .map((result) => result.provider)
+    .filter(Boolean))]
+    .slice(0, ALERT_STACK_LIMIT);
+
+  if (providers.length === 0) return ALERTS_URL;
+
+  const url = new URL("https://outagedeck.com/account");
+  url.searchParams.set("stack", providers.join(","));
+  url.searchParams.set("utm_source", "github_actions");
+  url.searchParams.set("utm_medium", "workflow_summary");
+  url.searchParams.set("utm_campaign", "status_check_alerts");
+  url.searchParams.set("utm_content", "stack_handoff");
+  return url.toString();
+}
+
 function buildStepSummary(results, operational) {
+  const successfulProviders = results.filter((result) => result.status !== "error");
+  const alertsUrl = buildAlertsUrl(results);
   const rows = results.map((result) => {
     const provider = result.url ? `[${result.name}](${result.url})` : result.name;
     const detail = result.error ? result.error.replaceAll("|", "\\|") : result.label;
@@ -89,7 +110,10 @@ function buildStepSummary(results, operational) {
     "| --- | --- | --- |",
     ...rows,
     "",
-    `[Get proactive alerts before the next failed workflow](${ALERTS_URL})`,
+    `[Get alerts for this checked stack](${alertsUrl})`,
+    ...(successfulProviders.length > ALERT_STACK_LIMIT
+      ? ["", `The prefilled handoff includes the first ${ALERT_STACK_LIMIT} successful checks.`]
+      : []),
     "",
   ].join("\n");
   return body;
@@ -147,7 +171,7 @@ async function main() {
       try {
         const result = await fetchProvider(provider, apiKey);
         results.push(result);
-        const line = `${result.name}: ${result.label}${result.headline ? ` — ${result.headline}` : ""}`;
+        const line = `${result.name}: ${result.label}${result.headline ? `: ${result.headline}` : ""}`;
         if (shouldFail(result.status, threshold)) {
           failed = true;
           console.log(`::error title=${annotationEscape(`${result.name} status`)}::${annotationEscape(line)}`);
@@ -169,6 +193,7 @@ async function main() {
     writeOutput("operational", String(operational));
     writeOutput("summary", summary);
     writeOutput("results", JSON.stringify(results));
+    writeOutput("alerts-url", buildAlertsUrl(results));
     writeStepSummary(results, operational);
 
     if (!operational) {
@@ -186,6 +211,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  buildAlertsUrl,
   buildStepSummary,
   failureThreshold,
   normalizeProviders,
