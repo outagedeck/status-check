@@ -1,0 +1,62 @@
+name: External OutageDeck health check
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: external-outagedeck-health
+  cancel-in-progress: true
+
+jobs:
+  health:
+    name: Check public health endpoint
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Verify OutageDeck health
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          health_file="$(mktemp)"
+          trap 'rm -f "$health_file"' EXIT
+
+          curl \
+            --fail-with-body \
+            --silent \
+            --show-error \
+            --location \
+            --connect-timeout 10 \
+            --max-time 30 \
+            --retry 2 \
+            --retry-delay 2 \
+            --output "$health_file" \
+            https://outagedeck.com/api/health
+
+          node - "$health_file" <<'NODE'
+          const fs = require("node:fs");
+
+          const response = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
+          const failures = [];
+
+          if (response.ok !== true || response.status !== "ok") {
+            failures.push("application status is not ok");
+          }
+          if (response.database?.reachable !== true) {
+            failures.push("database is not reachable");
+          }
+          if (response.ingestion?.stale !== false) {
+            failures.push("status ingestion is stale or unavailable");
+          }
+
+          if (failures.length > 0) {
+            throw new Error(failures.join("; "));
+          }
+
+          console.log(`OutageDeck is healthy at ${response.time}`);
+          NODE
