@@ -40,6 +40,8 @@ jobs:
 
 The action adds a provider table to the workflow summary, links every result to its live OutageDeck status page, and carries the successful provider stack into alert setup.
 
+Prefer to inspect a runnable example first? The independent [useful-actions collection includes a warning-only workflow](https://github.com/GuillaumeFalourd/useful-actions/blob/main/.github/workflows/outagedeck-status-check.yml) with configurable providers and reusable outputs.
+
 ## Inputs
 
 | Input | Required | Default | Description |
