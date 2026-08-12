@@ -1,6 +1,7 @@
 # OutageDeck vendor status check
 
 [![GitHub release](https://img.shields.io/github/v/release/outagedeck/status-check)](https://github.com/outagedeck/status-check/releases)
+[![GitHub status](https://img.shields.io/outagedeck/status/github)](https://outagedeck.com/providers/github?utm_source=github&utm_medium=repository&utm_campaign=shields_status_check&utm_content=github_status_badge)
 
 Stop burning CI minutes on an upstream outage. This GitHub Action checks the live status of the cloud and SaaS vendors your workflow depends on using [OutageDeck](https://outagedeck.com?utm_source=github&utm_medium=repository&utm_campaign=status_check), then fails or warns at the threshold you choose.
 
