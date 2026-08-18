@@ -8,7 +8,7 @@ The OutageDeck API is checked from GitHub-hosted infrastructure every ten minute
 
 The [external health page](https://outagedeck.github.io/status-check/) is served by GitHub Pages, outside the OutageDeck deployment. It checks the application, database, and provider-status ingestion path from a separate origin, while keeping the official provider sources as the authority for incidents.
 
-Stop burning CI minutes on an upstream outage. This GitHub Action checks the live status of the cloud and SaaS vendors your workflow depends on using [OutageDeck](https://outagedeck.com?utm_source=github&utm_medium=repository&utm_campaign=status_check), then fails or warns at the threshold you choose.
+Stop burning CI minutes on an upstream outage. This GitHub Action checks the status published by the cloud and SaaS vendors your workflow depends on using [OutageDeck](https://outagedeck.com?utm_source=github&utm_medium=repository&utm_campaign=status_check), then fails or warns at the threshold you choose.
 
 Public checks are free, keyless, and read-only. Status comes from each vendor's official status feed.
 
